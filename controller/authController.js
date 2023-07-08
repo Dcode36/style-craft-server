@@ -1,5 +1,6 @@
-const { hashPassword, comparePassword } = require('../helpers/authHelper');
-const userModel = require('../models/userModel')
+  const { hashPassword, comparePassword } = require('../helpers/authHelper');
+const userModel = require('../models/userModel');
+const Order = require("../models/orderModel")
 const jwt = require('jsonwebtoken')
 
 const registerController = async (req, res) => {
@@ -171,22 +172,22 @@ const forgotPasswordController = async (req, res) => {
 
 const updateProfileController = async (req, res) => {
     try {
-        const {name, email, password, address, phone} = req.body;
+        const { name, email, password, address, phone } = req.body;
         const user = await userModel.findById(req.user._id);
-        
-        if(password && password.length < 6){
-            return res.json({error : "Password is Required and 6 character Long"})
+
+        if (password && password.length < 6) {
+            return res.json({ error: "Password is Required and 6 character Long" })
         }
         const hashedPassword = password ? await hashPassword(password) : undefined;
         const updatedUser = await userModel.findByIdAndUpdate(req.user._id, {
-            name : name || user.name,
-            password : hashedPassword || user.password,
-            phone : phone || user.phone,
-            address : address || user.address
-        }, {new : true});
+            name: name || user.name,
+            password: hashedPassword || user.password,
+            phone: phone || user.phone,
+            address: address || user.address
+        }, { new: true });
         res.status(200).send({
-            success : true,
-            message : "Profile Updated successfully",
+            success: true,
+            message: "Profile Updated successfully",
             updatedUser
         })
     } catch (error) {
@@ -203,4 +204,21 @@ const testController = (req, res) => {
     res.send("protected routes")
 
 }
-module.exports = { registerController, loginController, testController, forgotPasswordController, updateProfileController }
+const getOrderController = async (req, res) => {
+    try {
+      const orders = await Order.find({ buyer: req.user._id })
+        .populate("products", "-photo")
+        .populate("buyer", "name");
+      res.send(orders);
+    } catch (error) {
+      console.log(error); // Log the error to the console for debugging
+      res.status(500).send({
+        success: false,
+        message: "Error while getting orders",
+        error: error.message, // Include the error message in the response
+      });
+    }
+  };
+  
+  
+module.exports = { registerController, loginController, testController, getOrderController, forgotPasswordController, updateProfileController }

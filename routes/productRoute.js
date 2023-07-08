@@ -1,6 +1,6 @@
 const express = require('express');
 const { requireSignIn, isAdmin } = require('../middlewares/authMiddleware');
-const { createProductController, getProductController, relatedProductController,productCategoryController,getSingleProductController, searchProductController,productListController,productCountController,productFilterController,productPhotoController, deleteProductController, updateProductController } = require('../controller/productController');
+const { createProductController, getProductController,getAllProductController ,relatedProductController,productCategoryController,getSingleProductController, searchProductController,productListController,productCountController,productFilterController,productPhotoController, deleteProductController, updateProductController } = require('../controller/productController');
 const formidable = require('express-formidable');
 
 const router = express.Router();
@@ -12,7 +12,7 @@ router.put('/update-product/:pid', requireSignIn, isAdmin, formidable(),updatePr
 // get product
 
 router.get('/get-product', getProductController);
-
+router.get('/get-user', getAllProductController)
 //single product
 
 router.get('/get-product/:slug', getSingleProductController);

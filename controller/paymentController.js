@@ -4,11 +4,13 @@
 const Razorpay = require('razorpay');
 var crypto = require("crypto");
 const Payment = require("../models/paymentModel")
-
+const Order = require("../models/orderModel")
+const dotenv = require("dotenv");
+dotenv.config();
 const instance = new Razorpay({
-  key_id: 'rzp_test_sbh9iyAB48kjF3',
-  key_secret: 'VPnT8mZx6uosUDgHyAfnW99B',
-});
+  key_id: process.env.KEY_ID,
+  key_secret: process.env.KEY_SECRET,
+}); 
 
 
 const checkout = async (req, res) => {
@@ -36,9 +38,8 @@ const checkout = async (req, res) => {
     });
   }
 };
-
 const paymentVerification = async (req, res) => {
-  const { payment_id, order_id, signature } = req.body;
+  const { payment_id, order_id, signature, cart } = req.body;
 
   const bodyText = order_id + "|" + payment_id;
 
@@ -50,19 +51,38 @@ const paymentVerification = async (req, res) => {
   const result = { status: false };
 
   if (expectedSignature === signature) {
-    // Database operations can be performed here
+    try {
+      // Database operations to create the order
+      const order = new Order({
+        products: cart.products,
+        size: cart.size,
+        address: cart.address,
+        quantity: cart.quantity,
+        payment: {
+          razorpay_order_id: order_id,
+          razorpay_payment_id: payment_id,
+          razorpay_signature: signature,
+        },
+        buyer: req.user._id, // Assuming authenticated user's ID is available in req.user._id
+        status: "Not Processed",
+      });
 
-    await Payment.create({
-      razorpay_order_id: order_id,
-      razorpay_payment_id: payment_id,
-      razorpay_signature: signature,
-    });
+      await order.save();
 
-    result.status = true;
+      result.status = true;
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Server error",
+        error,
+      });
+    }
+  } else {
+    res.status(400).json(result);
   }
-
-  res.status(200).send(result);
 };
+
 
 
 module.exports = { checkout, paymentVerification };

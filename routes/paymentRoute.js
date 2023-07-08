@@ -5,6 +5,6 @@ const router = express.Router();
 
 
 router.post('/checkout',checkout);
-router.post('/callback',paymentVerification);
+router.post('/callback' ,requireSignIn,paymentVerification);
  
 module.exports = router;

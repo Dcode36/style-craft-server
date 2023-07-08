@@ -1,7 +1,8 @@
 const slugify = require('slugify');
 const productModel = require('../models/productModel');
 const categoryModel = require('../models/categoryModel')
-// const fs = require('fs');
+const userModel = require('../models/userModel')
+const fs = require('fs');
 // const { v4: uuidv4 } = require("uuid");
 // const https = require("https");
 // const Razorpay = require("razorpay");
@@ -81,7 +82,7 @@ const createProductController = async (req, res) => {
             case !quantity:
                 return res.status(500).send({ error: "quantity is Required" });
 
-            case photo && photo.size > 16777216:
+            case photo && photo.size > 1000000:
                 return res.status(500).send({ error: "Photo is Required and should be les than 1 mb" });
         }
         const products = new productModel({ ...req.fields, slug: slugify(name) });
@@ -105,7 +106,19 @@ const createProductController = async (req, res) => {
         })
     }
 }
-
+const getAllProductController = async (req, res)=>{
+    try {
+        const users = await userModel.find();
+        res.json(users);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            success: false,
+            message: "Error in Getting users",
+            error: error.message
+        })
+    }
+}
 const getProductController = async (req, res) => {
     try {
         const products = await productModel.find({}).populate("category").select("-photo").limit(12).sort({ createdAt: -1 })
@@ -359,4 +372,4 @@ const productCategoryController = async (req, res) => {
     }
 }
 
-module.exports = { createProductController, productCategoryController, relatedProductController, searchProductController, productListController, productCountController, getProductController, productFilterController, getSingleProductController, productPhotoController, deleteProductController, updateProductController }
+module.exports = { createProductController, getAllProductController,productCategoryController, relatedProductController, searchProductController, productListController, productCountController, getProductController, productFilterController, getSingleProductController, productPhotoController, deleteProductController, updateProductController }
