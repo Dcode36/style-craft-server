@@ -33,8 +33,10 @@ app.get('/', (req, res) => {
     res.send(`<h1>88*</h1>`)
 })
 
-const PORT =  8096;
+const PORT = process.env.PORT || 8096;
 
-app.listen(PORT || 8096, () => {
-    console.log(`Server running on ${PORT}`);
-})  
+//run listen
+app.listen(PORT, () => {
+  console.log(
+    `Server Running on ${process.env.DEV_MODE} mode on port ${PORT}`);
+});
