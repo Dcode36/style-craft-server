@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoute');
 const categoryRoute = require('./routes/categoryRoute');
 const productRoutes = require('./routes/productRoute');
 const paymentRoute = require('./routes/paymentRoute')
+const orderRoutes = require('./routes/orderRoute');
 const cors = require('cors');
 // config env
 dotenv.config();
@@ -26,8 +27,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoute);
 app.use("/api/v1/product", productRoutes); 
 app.use("/api/v1/payments", paymentRoute)
-
-
+app.use('/api', orderRoutes);
 // rest api
 app.get('/', (req, res) => {
     res.send(`<h1>88*</h1>`)
